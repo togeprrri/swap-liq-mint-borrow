@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "swap": "node src/swap.js"
+  },
+  "devDependencies": {
+    "dotenv": "^16.3.1",
+    "ethers": "^6.7.1"
+  }
+}
