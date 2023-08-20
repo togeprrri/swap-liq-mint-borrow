@@ -10,12 +10,43 @@ document.getElementById("swap").addEventListener("click", main);
 let provider;
 let signer;
 
-const WETH = "0x20b28b1e4665fff290650586ad76e977eab90c5d";
-const ClassicPoolFactory = "0xf2FD2bc2fBC12842aAb6FbB8b1159a6a83E72006";
-const Router = "0xB3b7fCbb8Db37bC6f572634299A58f51622A847e";
+await window.ethereum.enable();
+provider = new ethers.BrowserProvider(window.ethereum);
+signer = await provider.getSigner();
+
+const WETH = "0x5aea5775959fbc2557cc8789bc1bf90a239d9a91";
+const ClassicPoolFactory = "0xf2DAd89f2788a8CD54625C60b55cD3d2D0ACa7Cb";
+const Router = "0x2da10A1e27bF85cEdD8FFb1AbBe97e53391C0295";
 
 async function connectWallet() {
     await window.ethereum.enable();
+    try {
+        await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: "0x144" }],
+        });
+        console.log("You have switched to the right network")
+
+    } catch (switchError) {
+        if (switchError.code === 4902) {
+            window.ethereum.request({
+                method: "wallet_addEthereumChain",
+                params: [{
+                    chainId: "0x144",
+                    rpcUrls: ["https://mainnet.era.zksync.io"],
+                    chainName: "zkSync Era Mainnet",
+                    nativeCurrency: {
+                        symbol: "ETH",
+                        decimals: 18
+                    },
+                }]
+            });
+        }
+        else {
+            console.log(switchError)
+        }
+    }
+
     provider = new ethers.BrowserProvider(window.ethereum);
     signer = await provider.getSigner();
 }
@@ -29,6 +60,7 @@ async function swap(tokenIn, tokenOut, amountIn, amountOutMin, signer) {
     );
 
     const poolAddress = await classicPoolFactory.getPool(tokenIn, tokenOut);
+    console.log(poolAddress);
 
     if (poolAddress === ethers.ZeroAddress) {
         throw Error('Pool not exists');
@@ -62,11 +94,12 @@ async function swap(tokenIn, tokenOut, amountIn, amountOutMin, signer) {
         paths,
         amountOutMin,
         BigInt(Math.floor(Date.now() / 1000)) + 1800n,
-        /*{
+        {
             value: tokenIn == WETH ? amountIn : 0,
-        }*/
+        }
     );
-    await response.wait();
+    console.log(response);
+    console.log("Transaction: ", response.hash);
 }
 
 async function main() {

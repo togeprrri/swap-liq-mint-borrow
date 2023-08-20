@@ -3,14 +3,18 @@ import { ethers } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethe
 import MintABI from './abi/Mint.json' assert { type: 'json' };
 
 document.getElementById("connectWallet").addEventListener("click", connectWallet);
-document.getElementById("changeToGoerli").addEventListener("click", changeToGoerli);
-document.getElementById("changeToZkSync").addEventListener("click", changeToZkSync);
+//document.getElementById("changeToGoerli").addEventListener("click", changeToGoerli);
+//document.getElementById("changeToZkSync").addEventListener("click", changeToZkSync);
 document.getElementById("mint").addEventListener("click", main);
 
 let provider;
 let signer;
 
-const NFTAddress = "0x616383a01180a5267ec3736657a759e7a7de27ce";
+const NFTAddress = "0x39d16AF1205833Fa9EFB0d79DB29C2D748C9eE8b";
+
+const abi = [
+    "function mint(uint256 _mintAmount) payable",
+]
 
 async function connectWallet() {
     await window.ethereum.enable();
@@ -18,7 +22,7 @@ async function connectWallet() {
     signer = await provider.getSigner();
 }
 
-async function changeToGoerli() {
+/*async function changeToGoerli() {
     try {
         await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
@@ -75,19 +79,26 @@ async function changeToZkSync() {
             console.log(switchError)
         }
     }
-}
+}*/
 
 
-async function mint() {
+async function mint(count) {
+    await window.ethereum.enable();
+    provider = new ethers.BrowserProvider(window.ethereum);
+    signer = await provider.getSigner();
+
     const NFTContract = new ethers.Contract(
         NFTAddress,
-        MintABI,
+        abi,
         signer
     );
 
-    await NFTContract.mint({ value: ethers.parseEther("0.00023") });
+    const response = await NFTContract.mint.populateTransaction(count, { value: ethers.parseEther("0.00023") });
+    console.log(response);
 }
 
 async function main() {
-    await mint();
+    const count = document.getElementById('mintCount').value;
+
+    await mint(count);
 }

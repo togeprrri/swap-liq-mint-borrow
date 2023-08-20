@@ -9,11 +9,15 @@
 
 <body>
     <button id="connectWallet">Connect Wallet</button>
-    <button id="changeToGoerli">Connect to Goerli</button>
-    <button id="changeToZkSync">Connect to zkSync Era Testnet</button>
+    <!--<button id="changeToGoerli">Connect to Goerli</button>
+    <button id="changeToZkSync">Connect to zkSync Era Testnet</button>-->
 
     <h1>Token Swap</h1>
 
+    Example: <br>
+    ETH: 0x0000000000000000000000000000000000000000<br>
+    USDC: 0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4<br>
+    <h3>Input token addresses and amount:</h3>
     <label for="swapTokenIn">Token In:</label>
     <input type="text" id="swapTokenIn" name="swapTokenIn" required><br><br>
 
@@ -30,6 +34,7 @@
 
     <h1>Liquidity</h1>
 
+    <h3>Input token addresses and amounts:</h3>
     <label for="liqTokenIn">Token In:</label>
     <input type="text" id="liqTokenIn" name="liqTokenIn" required><br><br>
 
@@ -51,11 +56,15 @@
 
     <button id="mint"> Mint </button>
 
+    <label for="mintCount">Count to mint:</label>
+    <input type="text" id="mintCount" name="mintCount" required><br><br>
+
     <script src='./src/mint.js' type="module"></script>
 
 
     <h1>Borrow</h1>
 
+    <h3>Not implemented</h3>
     <label for="borrowToken">Token:</label>
     <input type="text" id="borrowToken" name="borrowToken" required><br><br>
 

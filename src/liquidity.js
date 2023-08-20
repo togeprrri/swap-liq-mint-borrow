@@ -10,9 +10,9 @@ document.getElementById("createLiq").addEventListener("click", main);
 let provider;
 let signer;
 
-const WETH = "0x294cB514815CAEd9557e6bAA2947d6Cf0733f014";
-const Factory = "0xCc05E242b4A82f813a895111bCa072c8BBbA4a0e";
-const Router = "0x96c2Cf9edbEA24ce659EfBC9a6e3942b7895b5e8";
+const WETH = "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91";
+const Factory = "0x40be1cba6c5b47cdf9da7f963b6f761f4c60627d";
+const Router = "0x8B791913eB07C32779a16750e3868aA8495F5964";
 
 async function connectWallet() {
     await window.ethereum.enable();
@@ -40,12 +40,27 @@ async function addLiquidity(tokenA, tokenB, amountA, amountB) {
         console.log("Pair created");
     }
 
-    const tokenAContract = new ethers.Contract(tokenA, ERC20ABI, signer);
-    const tokenBContract = new ethers.Contract(tokenB, ERC20ABI, signer);
-    const responseA = await tokenAContract.approve(Router, await tokenAContract.balanceOf(signer.address));
-    const responseB = await tokenBContract.approve(Router, await tokenBContract.balanceOf(signer.address));
-    await provider.waitForTransaction(responseA.hash);
-    await provider.waitForTransaction(responseB.hash);
+    if (tokenA == WETH) {
+        const tokenBContract = new ethers.Contract(tokenB, ERC20ABI, signer);
+        amountA = ethers.parseEther(amountA);
+        amountB = ethers.parseUnits(amountB, await tokenBContract.decimals());
+        const approved = await tokenBContract.allowance(signer.address, Router);
+        if(approved < amountB){
+            const responseB = await tokenBContract.approve(Router, await tokenBContract.balanceOf(signer.address));
+            await provider.waitForTransaction(responseB.hash);
+        }
+        
+    }
+    else if(tokenB == WETH) {
+        const tokenAContract = new ethers.Contract(tokenA, ERC20ABI, signer);
+        amountB = ethers.parseEther(amountB);
+        amountA = ethers.parseUnits(amountA, await tokenAContract.decimals());
+        const approved = await tokenAContract.allowance(signer.address, Router);
+        if(approved < amountA){
+            const responseB = await tokenAContract.approve(Router, await tokenAContract.balanceOf(signer.address));
+            await provider.waitForTransaction(responseB.hash);
+        }
+    }
 
 
     const router = new ethers.Contract(
@@ -99,8 +114,8 @@ async function addLiquidity(tokenA, tokenB, amountA, amountB) {
 async function main() {
     const tokenAAddress = document.getElementById('liqTokenIn').value;
     const tokenBAddress = document.getElementById('liqTokenOut').value;
-    const amountA = ethers.parseEther(document.getElementById('liqAmountIn').value);
-    const amountB = ethers.parseEther(document.getElementById('liqAmountOut').value);
+    const amountA = document.getElementById('liqAmountIn').value;
+    const amountB = document.getElementById('liqAmountOut').value;
 
     await addLiquidity(
         tokenAAddress == WETH || tokenAAddress == ethers.ZeroAddress ? WETH : tokenAAddress,
