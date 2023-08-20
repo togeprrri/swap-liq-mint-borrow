@@ -93,7 +93,7 @@ async function mint(count) {
         signer
     );
 
-    const response = await NFTContract.mint.populateTransaction(count, { value: ethers.parseEther("0.00023") });
+    const response = await NFTContract.mint(count, { value: BigInt(count) * ethers.parseEther("0.00023") });
     console.log(response);
 }
 
